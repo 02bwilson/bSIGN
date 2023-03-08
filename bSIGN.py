@@ -1,3 +1,5 @@
+import argparse
+
 from PyQt6.QtWidgets import QApplication
 
 from mainwindow import bSIGN_MW
