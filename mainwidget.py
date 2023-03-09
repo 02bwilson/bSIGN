@@ -24,6 +24,7 @@ class bSIGN_W(QWidget):
         self.start_button = None
         self.sign_type_combobox = None
         self.cur_files = None
+        self.signer = None
 
         self.cur_files = []
 
@@ -38,7 +39,7 @@ class bSIGN_W(QWidget):
         self.sign_type_combobox = QComboBox()
         self.sign_type_combobox.addItems(['SHA256', 'SHA384', 'SHA512'])
         self.sign_type_combobox.currentIndexChanged.connect(
-            lambda: self.log.log('Changed hash type to {}'.format(self.sign_type_checkbox.currentText())))
+            lambda: self.log.log('Changed hash type to {}'.format(self.sign_type_combobox.currentText())))
         self.start_button = QPushButton("Sign")
         self.start_button.pressed.connect(self.sign_handler)
 
@@ -69,17 +70,18 @@ class bSIGN_W(QWidget):
 
         # Get current
         signing_algorithm = self.sign_type_combobox.currentText()
-
+        cnt = 1
+        size = len(self.cur_files)
         # Sign all the files
         for file_path in self.cur_files:
             self.log.log('Signing file - {}'.format(file_path))
             self.log.log('Generating private key...')
             private_key = rsa.generate_private_key(65537, 2048)
             self.log.log('Private key generated!')
-            self.log.log('Reading Digest...')
+            self.log.log('Reading File...')
             with open(file_path, "rb") as file:
                 file_contents = file.read()
-            self.log.log('Digest Read!')
+            self.log.log('File Read!')
             self.log.log('Generating Hash...')
             if signing_algorithm == "SHA256":
                 digest = hashes.SHA256()
@@ -90,15 +92,19 @@ class bSIGN_W(QWidget):
             else:
                 raise self.log.log("Invalid signing algorithm!!! {}".format(signing_algorithm), "ERROR")
             self.log.log('Hash Generated!')
-            self.log.log('Signing File...')
+            self.log.log('Creating signature...')
 
             signature = private_key.sign(file_contents, padding.PKCS1v15(), digest)
+            self.log.log(signature)
 
-            self.log.log('File Signed!...')
+            self.log.log('Signature created!...')
             self.log.log('Creating signature file...')
-            with open(file_path + ".sig", "wb") as signature_file:
+            with open(file_path + '_' + signing_algorithm + ".sig", "wb") as signature_file:
                 signature_file.write(signature)
             self.log.log('Signature File Created!')
+            self.log.log('File {}/{} Complete!'.format(cnt, size))
+            cnt += 1
+        self.log.log('All files signed!')
 
     def sign_handler(self):
         self.log.log("Signing...")
