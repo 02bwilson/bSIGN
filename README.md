@@ -1,16 +1,47 @@
 # bSIGN
 
-bSIGN is a simple Python program I created in just a few hours for fun. It signs files with different SHA hash functions.
+bSIGN is a file signing program that can be run in either GUI mode or terminal mode.
 
 ## Usage
 
-To use bSIGN, install the requirements and simply run the following command:
+To run bSIGN in GUI mode, use the following command:
 
 ```python bSIGN.py```
 
-This will launch the bSIGN GUI application. From there, you can select the file you want to sign and choose the desired hash function from a dropdown menu.
 
-## Note
-Please note that bSIGN is just a fun project I created in about two hours, and is not intended for any serious use. Use at your own risk.
+To run bSIGN in terminal mode, use the following command:
 
-Thank you for checking out bSIGN!
+```python bSIGN.py -f FILE1 FILE2 -a HASH_TYPE```
+
+
+Replace `FILE1` and `FILE2` with the names of the files you want to sign, and replace `HASH_TYPE` with the hash algorithm you want to use (e.g. `sha256`).
+
+## Requirements
+
+bSIGN requires the following packages:
+
+- cryptography (39.0.2)
+- PyQt6 (6.4.2)
+
+## Installation
+
+To install bSIGN, first clone the repository:
+
+```git clone https://github.com/02bwilson/bSIGN.git```
+
+Then, install the required packages:
+
+```pip install -r requirements.txt```
+
+
+## Contributing
+
+Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
+
+Please make sure to update tests as appropriate.
+
+## License
+![GitHub](https://img.shields.io/github/license/02bwilson/bSIGN)
+
+
+
