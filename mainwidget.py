@@ -1,6 +1,4 @@
-import threading
-
-from PyQt6.QtWidgets import QWidget, QGridLayout, QFileDialog, QPushButton, QComboBox, QPlainTextEdit, QMessageBox
+from PyQt6.QtWidgets import QWidget, QGridLayout, QFileDialog, QPushButton, QComboBox
 from PyQt6.QtCore import Qt
 
 from pathlib import Path
@@ -10,6 +8,7 @@ from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.asymmetric import rsa
 
 from log import Log
+from signer import bSIGN_Signer
 
 
 class bSIGN_W(QWidget):
@@ -33,6 +32,7 @@ class bSIGN_W(QWidget):
 
         # Setup the GUI
         self.log = Log()
+        self.signer = bSIGN_Signer(self)
         self.log.log("Setting up GUI...")
         self.file_select_button = QPushButton("Select File(s)")
         self.file_select_button.pressed.connect(self.file_handler)
@@ -64,51 +64,10 @@ class bSIGN_W(QWidget):
         for file in self.cur_files:
             self.log.log("Added {}".format(file))
 
-    def sign_files(self):
-        if not self.cur_files:
-            return
-
-        # Get current
-        signing_algorithm = self.sign_type_combobox.currentText()
-        cnt = 1
-        size = len(self.cur_files)
-        # Sign all the files
-        for file_path in self.cur_files:
-            self.log.log('Signing file - {}'.format(file_path))
-            self.log.log('Generating private key...')
-            private_key = rsa.generate_private_key(65537, 2048)
-            self.log.log('Private key generated!')
-            self.log.log('Reading File...')
-            with open(file_path, "rb") as file:
-                file_contents = file.read()
-            self.log.log('File Read!')
-            self.log.log('Generating Hash...')
-            if signing_algorithm == "SHA256":
-                digest = hashes.SHA256()
-            elif signing_algorithm == "SHA384":
-                digest = hashes.SHA384()
-            elif signing_algorithm == "SHA512":
-                digest = hashes.SHA512()
-            else:
-                raise self.log.log("Invalid signing algorithm!!! {}".format(signing_algorithm), "ERROR")
-            self.log.log('Hash Generated!')
-            self.log.log('Creating signature...')
-
-            signature = private_key.sign(file_contents, padding.PKCS1v15(), digest)
-            self.log.log(signature)
-
-            self.log.log('Signature created!...')
-            self.log.log('Creating signature file...')
-            with open(file_path + '_' + signing_algorithm + ".sig", "wb") as signature_file:
-                signature_file.write(signature)
-            self.log.log('Signature File Created!')
-            self.log.log('File {}/{} Complete!'.format(cnt, size))
-            cnt += 1
-        self.log.log('All files signed!')
-
     def sign_handler(self):
         self.log.log("Signing...")
         if self.cur_files in [[], [''], None]:
             self.log.log("No files selected.", level="ERROR")
         else:
-            self.sign_files()
+            self.signer.cur_files = self.cur_files
+            self.signer.sign_files()
