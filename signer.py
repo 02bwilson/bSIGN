@@ -9,15 +9,16 @@ class bSIGN_Signer:
     def __init__(self, mw, mw_flag=True):
         self.mw_flag = mw_flag
         self.log = Log()
+
         self.signing_algorithm = "SHA256"
         if self.mw_flag:
             self.mw = mw
+            self.log = self.mw.log
             self.cur_files = self.mw.cur_files
-            self.sign_type_combobox = self.mw.sign_type_combo_box
+            self.sign_type_combobox = self.mw.sign_type_combobox
         else:
             self.cur_files = []
             self.sign_type_combobox = ""
-
 
     def sign_files(self):
         if not self.cur_files:
@@ -25,7 +26,8 @@ class bSIGN_Signer:
 
         # Get current
         if self.mw_flag:
-            self.signing_algorithm = self.sign_type_combobox.currentText()
+            self.cur_files = self.mw.cur_files
+            self.signing_algorithm = self.mw.sign_type_combobox.currentText()
         cnt = 1
         size = len(self.cur_files)
         # Sign all the files
@@ -51,7 +53,7 @@ class bSIGN_Signer:
             self.log.log('Creating signature...')
 
             signature = private_key.sign(file_contents, padding.PKCS1v15(), digest)
-            self.log.log(signature)
+            self.log.log(signature, 'INFO')
 
             self.log.log('Signature created!...')
             self.log.log('Creating signature file...')
